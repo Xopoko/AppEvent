@@ -14,5 +14,5 @@ Pod::Spec.new do |spec|
   spec.homepage     = 'https://github.com/Xopoko/AppEvent'
   spec.author       = 'Рщкщлщ'
   spec.source       = { :git => 'https://github.com/Xopoko/AppEvent.git', :tag => 'v0.0.1' }
-  spec.source_files = 'Classes/*'
+  spec.source_files = 'AppEvent/*'
 end
