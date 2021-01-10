@@ -7,14 +7,16 @@
 #
 
 Pod::Spec.new do |spec|
-  spec.name         = "AppEvent"
-  spec.version      = "0.0.1"
-  spec.summary      = "A short description of AppEvent."
-  spec.description  = <<-DESC
-                   DESC
-  spec.homepage     = "https://github.com/Xopoko/AppEvent"
-  s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  spec.author       = { "horoko" => "horokko@mail.ru" }
-  spec.source       = { :git => "https://github.com/Xopoko/AppEvent" }
-  s.source_files = 'Classes/*'
+  spec.name         = 'AppEvent'
+  spec.version      = '0.0.2'
+  spec.license      = 'MIT'
+  spec.summary      = 'A useful library for handling events in your application'
+  spec.homepage     = 'https://github.com/Xopoko/AppEvent'
+  spec.author       = 'Horoko'
+  spec.source       = { :git => 'https://github.com/Xopoko/AppEvent.git', :tag => 'v0.0.2' }
+  spec.source_files = 'AppEvent/*'
+  spec.exclude_files = 'AppEvent/*.plist'
+  spec.swift_version = '5.0'
+  spec.requires_arc  = true
+  spec.ios.deployment_target = '9.0'
 end
