@@ -16,4 +16,6 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => 'https://github.com/Xopoko/AppEvent.git', :tag => 'v0.0.1' }
   spec.source_files = 'AppEvent/*'
   spec.swift_version = '5.0'
+  spec.requires_arc  = true
+  spec.ios.deployment_target = '9.0'
 end
