@@ -15,4 +15,5 @@ Pod::Spec.new do |spec|
   spec.author       = 'Рщкщлщ'
   spec.source       = { :git => 'https://github.com/Xopoko/AppEvent.git', :tag => 'v0.0.1' }
   spec.source_files = 'AppEvent/*'
+  spec.swift_version = '5.0'
 end
