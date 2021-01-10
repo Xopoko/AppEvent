@@ -9,8 +9,8 @@
 //TODO: Настройки с количесвом сохраняемых лог файлов
 
 public class AppEventProvider<AppEvent: AppEventType> {
-    var currentLogFilePath = ""
-    var allLogFilePaths: [String] = []
+    public var currentLogFilePath = ""
+    public var allLogFilePaths: [String] = []
     
     private let logFilesCount: Int
     private let dateFormat   : String
@@ -23,10 +23,10 @@ public class AppEventProvider<AppEvent: AppEventType> {
     /// - parameter dateFormat   : Date format using in log file and log file name. Default value is = `dd.MM.yyy-HH.mm.ss.SSS`.
     /// - parameter logFileName  : Log file name after `dateFormat` prefix. Default value is = `log.txt`
     /// - parameter plugins      : Array of plugins protocol `AppEventPluginType`. Default value is = `[]`
-    init(logFilesCount: Int  = 2,
-         dateFormat: String  = "dd.MM.yyy-HH.mm.ss.SSS",
-         logFileName: String = "log.txt",
-         plugins: [AppEventPluginType] = []) {
+    public init(logFilesCount: Int                  = 2,
+                dateFormat   : String               = "dd.MM.yyy-HH.mm.ss.SSS",
+                logFileName  : String               = "log.txt",
+                plugins      : [AppEventPluginType] = []) {
         self.logFilesCount = logFilesCount
         self.dateFormat    = dateFormat
         self.logFileName   = logFileName
@@ -38,7 +38,7 @@ public class AppEventProvider<AppEvent: AppEventType> {
         allLogFilePaths = getAllLogFiles()
     }
     
-    func happened(_ appEvent: AppEvent, _ fileName: String = #file, _ functionName: String = #function, _ lineNumber: UInt = #line) {
+    public func happened(_ appEvent: AppEvent, _ fileName: String = #file, _ functionName: String = #function, _ lineNumber: UInt = #line) {
         plugins.forEach { $0.willHappened(appEvent) }
         
         let printString = buildPrintString(appEvent, fileName, functionName, lineNumber)
@@ -46,6 +46,7 @@ public class AppEventProvider<AppEvent: AppEventType> {
         if appEvent.shouldPrint {
             print(printString)
         }
+        
         if appEvent.shouldWriteToLog {
             write(printString)
         }
@@ -59,7 +60,7 @@ public class AppEventProvider<AppEvent: AppEventType> {
         plugins.forEach { $0.didHappened(appEvent) }
     }
     
-    func when(_ appEvent: AppEvent, _ closure: @escaping () -> Void) {
+    public func when(_ appEvent: AppEvent, _ closure: @escaping () -> Void) {
         whenArray.append((appEvent, closure))
     }
 }
@@ -102,20 +103,17 @@ private extension AppEventProvider {
     }
     
     func clearOldLogFiles() {
-        guard let content = try? FileManager.default.contentsOfDirectory(atURL: URL(fileURLWithPath: NSHomeDirectory() + "/Documents/Logs/")) else { return }
+        guard let content = try? contentsOfDirectory(atURL: URL(fileURLWithPath: NSHomeDirectory() + "/Documents/Logs/")) else { return }
         let pathsToDelete = content[logFilesCount - 1..<content.count]
         pathsToDelete.forEach { try? FileManager.default.removeItem(at: URL(fileURLWithPath: $0)) }
     }
     
     func getAllLogFiles() -> [String] {
-        return (try? FileManager.default.contentsOfDirectory(atURL: URL(fileURLWithPath: NSHomeDirectory() + "/Documents/Logs/"))) ?? []
+        return (try? contentsOfDirectory(atURL: URL(fileURLWithPath: NSHomeDirectory() + "/Documents/Logs/"))) ?? []
     }
-}
-
-
-public extension FileManager {
-    func contentsOfDirectory(atURL url: URL, ascending: Bool = true, options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]) throws -> [String]? {
-        var files = try contentsOfDirectory(at: url, includingPropertiesForKeys: [.creationDateKey], options: options)
+    
+    func contentsOfDirectory(atURL url: URL, ascending: Bool = true) throws -> [String]? {
+        var files = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles])
         try files.sort {
             let values1 = try $0.resourceValues(forKeys: [.creationDateKey])
             let values2 = try $1.resourceValues(forKeys: [.creationDateKey])
