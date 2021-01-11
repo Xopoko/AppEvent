@@ -6,11 +6,11 @@
 //  Copyright © 2020 Horoko. All rights reserved.
 //
 public protocol AppEventType {
-    var message         : String? { get }
-    var logLevel        : String  { get }
-    var shouldPrint     : Bool    { get }
-    var shouldWriteToLog: Bool    { get }
-    var shouldBroadcast : Bool    { get }
+    var message             : String? { get }
+    var logLevel            : String  { get }
+    var shouldPrint         : Bool    { get }
+    var shouldWriteToLogFile: Bool    { get }
+    var shouldBroadcast     : Bool    { get }
     
     func isEqual(to appEventType: AppEventType) -> Bool
 }
