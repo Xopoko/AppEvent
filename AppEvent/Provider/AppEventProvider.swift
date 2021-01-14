@@ -10,7 +10,7 @@
 
 public class AppEventProvider<AppEvent: AppEventType> {
     public var currentLogFilePath: String   { logging.currentLogFilePath }
-    public var allLogFilePaths   : [String] { logging.allLogFilePaths    }
+    public var allLogFilePaths   : [URL] { logging.allLogFilePaths    }
     
     private let logging     : AppEventLoggingType
     private let printing    : AppEventPrintingType

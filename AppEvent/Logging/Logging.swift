@@ -8,19 +8,21 @@
 import Foundation
 
 class Logging: AppEventLoggingType {
-    var allLogFilePaths: [String] { getAllLogFiles() }
+    var allLogFilePaths: [URL] { getAllLogFiles() }
     var currentLogFilePath = ""
     
     private var fileHandle   : FileHandle?
     private let logFilesCount: Int
     private let dateFormat   : String
     private let logFileName  : String
+    private var logFilesDirectory: URL!
     
     init(dateFormat: String, logFilesCount: Int, logFileName: String) {
         self.dateFormat    = dateFormat
         self.logFilesCount = logFilesCount
         self.logFileName   = logFileName
-        
+        logFilesDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0], isDirectory: true).appendingPathComponent("AppEventLogs")
+        fileHandle = buildFileHandle()
         clearOldLogFiles()
         //TODO: Move it
         startHandleCrash()
@@ -37,8 +39,17 @@ class Logging: AppEventLoggingType {
 
 private extension Logging {
     func buildFileHandle() -> FileHandle? {
-        let logsDirectoryPath = NSHomeDirectory() + "/Documents/Logs/"
-        currentLogFilePath = logsDirectoryPath + formattedDateString(dateFormat) + "-" + logFileName
+        let fileURL = logFilesDirectory.appendingPathComponent("\(formattedDateString(dateFormat))-\(logFileName)")
+        currentLogFilePath = fileURL.relativePath
+        
+        if !FileManager.default.fileExists(atPath: logFilesDirectory.relativePath) {
+            do {
+                try FileManager.default.createDirectory(atPath: logFilesDirectory.relativePath, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print(error)
+            }
+        }
+        
         if !FileManager.default.fileExists(atPath: currentLogFilePath) {
             FileManager.default.createFile(atPath: currentLogFilePath, contents: nil, attributes: nil)
         }
@@ -54,7 +65,7 @@ private extension Logging {
     func buildPrintString(_ appEvent: AppEventType, _ fileName: String, _ functionName: String, _ lineNumber: UInt) -> String {
         let message = appEvent.message == nil ? "" : " ⇨ \(appEvent.message!)"
         let filenameWithoutPath = fileName.contains("/") ? String(fileName.split(separator: "/").last!) : fileName
-        let printString = "\(appEvent.logLevel) ⇨ \(formattedDateString(dateFormat)) ⇨ \(filenameWithoutPath) ⇨ \(functionName) ⇨ \(lineNumber)\(message)"
+        let printString = "\(appEvent.logLevel) ⇨ \(formattedDateString(dateFormat)) ⇨ \(filenameWithoutPath) ⇨ \(functionName) ⇨ \(lineNumber)\(message)\n"
         return printString
     }
     
@@ -66,16 +77,27 @@ private extension Logging {
     }
     
     func clearOldLogFiles() {
-        guard let content = try? contentsOfDirectory(atURL: URL(fileURLWithPath: NSHomeDirectory() + "/Documents/Logs/")) else { return }
-        let pathsToDelete = content[logFilesCount - 1..<content.count]
-        pathsToDelete.forEach { try? FileManager.default.removeItem(at: URL(fileURLWithPath: $0)) }
+        do {
+            let content = try contentsOfDirectory(atURL: logFilesDirectory, ascending: false)
+            if content.count > logFilesCount {
+                let pathsToDelete = content[logFilesCount - 1..<content.count]
+                pathsToDelete.forEach { try? FileManager.default.removeItem(at: $0) }
+            }
+        } catch {
+            print(error)
+        }
     }
     
-    func getAllLogFiles() -> [String] {
-        return (try? contentsOfDirectory(atURL: URL(fileURLWithPath: NSHomeDirectory() + "/Documents/Logs/"))) ?? []
+    func getAllLogFiles() -> [URL] {
+        do {
+            return try contentsOfDirectory(atURL: logFilesDirectory)
+        } catch {
+            print("error")
+            return []
+        }
     }
     
-    func contentsOfDirectory(atURL url: URL, ascending: Bool = true) throws -> [String]? {
+    func contentsOfDirectory(atURL url: URL, ascending: Bool = true) throws -> [URL] {
         var files = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles])
         try files.sort {
             let values1 = try $0.resourceValues(forKeys: [.creationDateKey])
@@ -85,6 +107,6 @@ private extension Logging {
             }
             return true
         }
-        return files.map { $0.lastPathComponent }
+        return files
     }
 }

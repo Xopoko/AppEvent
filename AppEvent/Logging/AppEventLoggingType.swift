@@ -7,7 +7,7 @@
 
 public protocol AppEventLoggingType {
     var currentLogFilePath: String   { get }
-    var allLogFilePaths   : [String] { get }
+    var allLogFilePaths   : [URL] { get }
     
     func write(_ appEvent: AppEventType, _ fileName: String, _ functionName: String, _ lineNumber: UInt)
 }
